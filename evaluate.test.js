@@ -1,0 +1,10 @@
+const assert = require("assert");
+const { evaluate } = require("./evaluate");
+assert.strictEqual(evaluate("1+2*3"), 7);
+assert.strictEqual(evaluate("10/4-1"), 1.5);
+assert.strictEqual(evaluate("-2*3"), -6);
+assert.strictEqual(evaluate("2+"), null);
+assert.strictEqual(evaluate(""), null);
+assert.strictEqual(evaluate("1/0"), null);
+assert.strictEqual(evaluate("*2"), null);
+console.log("ok");

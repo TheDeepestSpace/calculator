@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculator</title>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body { display: flex; align-items: center; justify-content: center;
+         font-family: system-ui, sans-serif; background: #fafafa; color: #222; }
+  #calc { width: 260px; }
+  #screen { padding: 12px; text-align: right; border-bottom: 1px solid #ddd; margin-bottom: 12px; }
+  #expr { min-height: 1.5em; font-size: 1.2rem; word-break: break-all; }
+  #answer { min-height: 1.5em; font-size: 1.6rem; color: #666; }
+  #keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  button { padding: 14px 0; font-size: 1.1rem; border: 1px solid #ddd; background: #fff;
+           border-radius: 6px; cursor: pointer; }
+  button:hover { background: #f0f0f0; }
+</style>
+</head>
+<body>
+<main id="calc">
+  <div id="screen">
+    <div id="expr"></div>
+    <div id="answer"></div>
+  </div>
+  <div id="keys"></div>
+</main>
+<script src="evaluate.js"></script>
+<script>
+  const layout = ["7","8","9","/", "4","5","6","*", "1","2","3","-", "C","0",".","+", "⌫"];
+  const keys = document.getElementById("keys");
+  const exprEl = document.getElementById("expr");
+  const answerEl = document.getElementById("answer");
+  let expr = "";
+
+  function render() {
+    exprEl.textContent = expr;
+    const v = evaluate(expr);
+    answerEl.textContent = v === null ? "" : "=" + +v.toFixed(10);
+  }
+  function press(k) {
+    if (k === "C") expr = "";
+    else if (k === "⌫") expr = expr.slice(0, -1);
+    else expr += k;
+    render();
+  }
+  for (const k of layout) {
+    const b = document.createElement("button");
+    b.textContent = k;
+    if (k === "⌫") b.style.gridColumn = "span 4";
+    b.onclick = () => press(k);
+    keys.appendChild(b);
+  }
+  render();
+</script>
+</body>
+</html>
