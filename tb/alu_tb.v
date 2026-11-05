@@ -1,0 +1,38 @@
+module alu_tb;
+    reg signed [31:0] a, b;
+    reg [1:0] op;
+    wire signed [31:0] result;
+    wire overflow, div_by_zero;
+    integer fails = 0;
+
+    alu dut (.a(a), .b(b), .op(op), .result(result), .overflow(overflow), .div_by_zero(div_by_zero));
+
+    task check(input [1:0] o, input signed [31:0] x, y, input signed [31:0] exp,
+               input exp_ovf, input exp_dz);
+        begin
+            op = o; a = x; b = y; #1;
+            if (result !== exp || overflow !== exp_ovf || div_by_zero !== exp_dz) begin
+                fails = fails + 1;
+                $display("FAIL op=%0d a=%0d b=%0d -> %0d ovf=%b dz=%b", o, x, y, result, overflow, div_by_zero);
+            end
+        end
+    endtask
+
+    initial begin
+        check(0, 2, 3, 5, 0, 0);
+        check(0, -2, -3, -5, 0, 0);
+        check(0, 32'h7fffffff, 1, 32'h80000000, 1, 0);
+        check(1, 2, 3, -1, 0, 0);
+        check(1, 32'h80000000, 1, 32'h7fffffff, 1, 0);
+        check(2, 6, 7, 42, 0, 0);
+        check(2, -6, 7, -42, 0, 0);
+        check(2, 65536, 65536, 0, 1, 0);
+        check(3, 7, 2, 3, 0, 0);
+        check(3, -7, 2, -3, 0, 0);
+        check(3, 7, -2, -3, 0, 0);
+        check(3, 5, 0, 0, 0, 1);
+        check(3, 32'h80000000, -1, 32'h80000000, 1, 0);
+        if (fails == 0) $display("PASS"); else $display("%0d FAILED", fails);
+        $finish(fails != 0);
+    end
+endmodule
