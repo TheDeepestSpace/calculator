@@ -1,0 +1,22 @@
+name: Build Docker Images
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+jobs:
+  ci_image:
+    uses: ./.github/workflows/docker-image.yml
+    with:
+      image-name: ghcr.io/thedeepestspace/calculator-ci
+      target: ci
+    secrets: inherit
+  dev_image:
+    needs: ci_image
+    uses: ./.github/workflows/docker-image.yml
+    with:
+      image-name: ghcr.io/thedeepestspace/calculator-dev
+      target: dev
+    secrets: inherit

@@ -1,0 +1,33 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: read
+jobs:
+  ci_image:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/docker-image.yml
+    with:
+      image-name: ghcr.io/thedeepestspace/calculator-ci
+      target: ci
+    secrets: inherit
+  test:
+    needs: ci_image
+    if: ${{ !cancelled() && (needs.ci_image.result == 'success' || needs.ci_image.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.ci_image.outputs.image-primary-tag || 'ghcr.io/thedeepestspace/calculator-ci:latest' }}
+      options: --user root
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: make test
