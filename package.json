@@ -1,0 +1,27 @@
+{
+  "name": "calculator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "evaluate.js",
+  "scripts": {
+    "test": "node evaluate.test.js",
+    "test:ui": "playwright test",
+    "test:ui:update": "playwright test --update-snapshots"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheDeepestSpace/calculator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/TheDeepestSpace/calculator/issues"
+  },
+  "homepage": "https://github.com/TheDeepestSpace/calculator#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.65.0"
+  },
+  "private": "true"
+}
