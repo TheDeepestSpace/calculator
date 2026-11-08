@@ -21,7 +21,7 @@ module alu_tb;
     // sin check with tolerance of 2 LSB (Q16.16)
     task check_sin(input signed [31:0] x, input signed [31:0] exp);
         begin
-            op = 4; a = x; b = 0; #1;
+            op = 6; a = x; b = 0; #1;
             if (result - exp > 2 || exp - result > 2 || overflow !== 1'b0 || div_by_zero !== 1'b0) begin
                 fails = fails + 1;
                 $display("FAIL sin(%0d) -> %0d expected %0d", x, result, exp);
@@ -43,6 +43,23 @@ module alu_tb;
         check(3, 7, -2, -3, 0, 0);
         check(3, 5, 0, 0, 0, 1);
         check(3, 32'h80000000, -1, 32'h80000000, 1, 0);
+        // right shift (arithmetic)
+        check(4, 8, 2, 2, 0, 0);
+        check(4, -8, 1, -4, 0, 0);
+        check(4, -1, 31, -1, 0, 0);
+        check(4, 5, 0, 5, 0, 0);
+        check(4, 5, 32, 0, 0, 0);
+        check(4, -5, 40, -1, 0, 0);
+        check(4, 5, -1, 0, 1, 0);
+        // left shift
+        check(5, 3, 2, 12, 0, 0);
+        check(5, -3, 2, -12, 0, 0);
+        check(5, 1, 31, 32'h80000000, 1, 0);
+        check(5, 1, 30, 32'h40000000, 0, 0);
+        check(5, 1, 32, 0, 1, 0);
+        check(5, 0, 40, 0, 0, 0);
+        check(5, 32'h40000000, 1, 32'h80000000, 1, 0);
+        check(5, 5, -1, 0, 1, 0);
         check_sin(0, 0);
         check_sin(102944, 65536);        // sin(pi/2) = 1
         check_sin(-102944, -65536);      // sin(-pi/2) = -1
