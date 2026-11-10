@@ -1,17 +1,17 @@
-// Combinational calculator datapath: signed add, subtract, multiply, divide, shift right/left, sine.
+// Combinational calculator datapath: signed add, subtract, multiply, divide, shift right/left, sine, square.
 // sin: a is an angle in radians, Q16.16 fixed point; result is Q16.16 (b ignored). Assumes W=32.
 module alu #(
     parameter W = 32
 ) (
     input  signed [W-1:0] a,
     input  signed [W-1:0] b,
-    input         [2:0]   op,        // 0 add, 1 sub, 2 mul, 3 div, 4 shr, 5 shl (b = shift amount), 6 sin
+    input         [2:0]   op,        // 0 add, 1 sub, 2 mul, 3 div, 4 shr, 5 shl (b = shift amount), 6 sin, 7 square (a*a, b ignored)
     output reg signed [W-1:0] result,
     output reg            overflow,  // result does not fit in W bits
     output reg            div_by_zero
 );
     localparam OP_ADD = 3'd0, OP_SUB = 3'd1, OP_MUL = 3'd2, OP_DIV = 3'd3,
-               OP_SHR = 3'd4, OP_SHL = 3'd5, OP_SIN = 3'd6;
+               OP_SHR = 3'd4, OP_SHL = 3'd5, OP_SIN = 3'd6, OP_SQR = 3'd7;
 
     // Q16.16 constants
     localparam signed [63:0] ONE = 64'sd65536, PI = 64'sd205887,
@@ -21,6 +21,7 @@ module alu #(
     wire signed [W:0]     sum  = a + b;
     wire signed [W:0]     diff = a - b;
     wire signed [2*W-1:0] prod = a * b;
+    wire signed [2*W-1:0] sq   = a * a;
     wire signed [W-1:0]   min  = {1'b1, {(W-1){1'b0}}};
 
     always @* begin
@@ -65,6 +66,10 @@ module alu #(
                     result   = a << b;
                     overflow = (result >>> b) != a;
                 end
+            end
+            OP_SQR: begin
+                result   = sq[W-1:0];
+                overflow = sq != {{W{result[W-1]}}, result};
             end
             OP_SIN: begin
                 // reduce to [-pi, pi], fold to [-pi/2, pi/2]
